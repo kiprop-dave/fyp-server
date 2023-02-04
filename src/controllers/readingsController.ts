@@ -77,10 +77,8 @@ async function getReadings(req: Request, res: Response) {
         $group: {
           _id: {
             $dateToString: {
-              $dateToString: {
-                format: "%Y-%m-%d %H:00:00",
-                date: "$timestamp",
-              },
+              format: "%Y-%m-%d %H+3:00:00",
+              date: "$timestamp",
             },
           },
           sensorOne: {
