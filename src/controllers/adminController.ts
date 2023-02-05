@@ -9,7 +9,9 @@ import { z } from "zod";
 // Create an admin
 async function createAdmin(req: Request, res: Response) {
   if (!req.body.name || !req.body.email || !req.body.password) {
-    res.status(400).send("Please provide a name, email and password");
+    res
+      .status(400)
+      .send({ message: "Please provide a name, email and password" });
     return;
   }
 
@@ -22,7 +24,7 @@ async function createAdmin(req: Request, res: Response) {
     // Check if admin already exists
     let conflict = await AdminModel.findOne({ email: admin.email }).exec();
     if (conflict) {
-      return res.status(409).send("Admin already exists");
+      return res.status(409).send({ message: "Admin already exists" });
     }
 
     const hashedPassword = generateHashedPassword(admin.password);
@@ -35,7 +37,7 @@ async function createAdmin(req: Request, res: Response) {
     return res.status(201).send("Admin created");
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).send("Invalid details");
+      return res.status(400).send({ message: "Invalid details" });
     }
   }
 }
@@ -43,7 +45,7 @@ async function createAdmin(req: Request, res: Response) {
 // Authenticate an admin
 async function authAdmin(req: Request, res: Response) {
   if (!req.body.email || !req.body.password) {
-    res.status(400).send("Please provide an email and password");
+    res.status(400).send({ message: "Please provide an email and password" });
     return;
   }
 
@@ -52,17 +54,19 @@ async function authAdmin(req: Request, res: Response) {
 
     const foundAdmin = await AdminModel.findOne({ email: email }).exec();
     if (!foundAdmin) {
-      return res.status(401).send("There is no admin with that email");
+      return res
+        .status(401)
+        .send({ message: "There is no admin with that email" });
     }
 
     const isPasswordCorrect = compare(foundAdmin.password, password);
     if (!isPasswordCorrect) {
-      return res.status(401).send("Incorrect password");
+      return res.status(401).send({ message: "Incorrect password" });
     }
 
     const accessSecret = process.env.ACCESS_SECRET;
     if (!accessSecret) {
-      return res.status(500).send("Something went wrong");
+      return res.status(500).send({ message: "Something went wrong" });
     }
 
     const token = jwt.sign({ email: foundAdmin.email }, accessSecret, {
@@ -70,7 +74,7 @@ async function authAdmin(req: Request, res: Response) {
     });
     return res.status(200).send({ token });
   } catch (error) {
-    return res.status(500).send("Something went wrong");
+    return res.status(500).send({ message: "Something went wrong" });
   }
 }
 
