@@ -11,12 +11,14 @@ import { ReadingSchema } from "./types/types";
 import adminRoute from "./routes/login";
 import readingsRoute from "./routes/api/readings";
 import { reset } from "./services/sendSms";
+// import logRequest from "./middleware/requestLog";
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 connectToMongo();
 
+// app.use(logRequest);
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

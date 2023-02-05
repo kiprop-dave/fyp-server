@@ -29,7 +29,7 @@ async function storeReading(reading: Reading) {
   } else if (reptProblem) {
     message = generateSms(t2, h2, "reptilian");
   }
-  let res = await sendSms("0799565744", message);
+  let res = await sendSms("07xxxxxxxx", message);
   if (res.error) {
     console.log("error");
   }
