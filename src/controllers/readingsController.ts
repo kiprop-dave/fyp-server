@@ -51,6 +51,7 @@ async function getReadings(req: Request, res: Response) {
           _id: {
             $dateToString: {
               format: "%Y-%m-%d %H:00:00",
+              timezone: "+03:00",
               date: "$timestamp",
             },
           },
@@ -77,7 +78,8 @@ async function getReadings(req: Request, res: Response) {
         $group: {
           _id: {
             $dateToString: {
-              format: "%Y-%m-%d %H+3:00:00",
+              format: "%Y-%m-%d %H:00:00",
+              timezone: "+03:00",
               date: "$timestamp",
             },
           },
