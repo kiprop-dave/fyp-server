@@ -72,7 +72,18 @@ async function authAdmin(req: Request, res: Response) {
     const token = jwt.sign({ email: foundAdmin.email }, accessSecret, {
       expiresIn: "1h",
     });
-    return res.status(200).send({ token });
+
+    const mqttUsername = process.env.MQTT_USERNAME;
+    const mqttPassword = process.env.MQTT_PASSWORD;
+    const brokerUrl = process.env.BROKER_URL;
+
+    if (!mqttUsername || !mqttPassword || !brokerUrl) {
+      return res.status(500).send({ message: "Something went wrong" });
+    }
+
+    return res
+      .status(200)
+      .send({ token, mqttUsername, mqttPassword, brokerUrl });
   } catch (error) {
     return res.status(500).send({ message: "Something went wrong" });
   }

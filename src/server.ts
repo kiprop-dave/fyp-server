@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import { connection } from "mongoose";
 import corsOptions from "./config/corsOptions";
 import client from "./config/mqttConfig";
 import connectToMongo from "./config/dbConfig";
@@ -50,8 +49,4 @@ client.on("message", (topic, message) => {
   }
 });
 
-client.once("connect", () => {
-  connection.once("open", () => {
-    app.listen(port, () => console.log(`Server is running on port: ${port}`));
-  });
-});
+app.listen(port, () => console.log(`Server is running on port: ${port}`));
