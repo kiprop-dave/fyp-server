@@ -35,8 +35,8 @@ client.on("connect", () => {
 });
 
 client.on("message", (topic, message) => {
-  console.log("Message received on topic: " + topic);
-  console.log("Message: " + message.toString());
+  // console.log("Message received on topic: " + topic);
+  // console.log("Message: " + message.toString());
   if (topic === "readings") {
     const data = {
       timestamp: new Date(),

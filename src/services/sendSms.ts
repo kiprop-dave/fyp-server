@@ -15,10 +15,11 @@ class SmsTracker {
     this.isSirenOn = false;
   }
 
+  // Allow sending sms every 5 minutes
   private canSend(): boolean {
     let now = new Date().getTime();
     let allowed =
-      now - this.lastSent > 0.5 * 60 * 1000 &&
+      now - this.lastSent > 5 * 60 * 1000 &&
       now - this.lastSent < 20 * 60 * 1000 &&
       this.timesSent < 3;
     if (allowed) {
@@ -35,7 +36,7 @@ class SmsTracker {
       console.log(`message sent ${this.timesSent} times`);
       return true;
     } else if (now - this.lastSent > 20 * 60 * 1000) {
-      this.timesSent = 0;
+      this.reset();
     } else if (now - this.lastSent < 20 * 60 * 1000 && this.timesSent >= 3) {
       sirenEvent.emit("alert");
       this.isSirenOn = true;

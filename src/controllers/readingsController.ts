@@ -29,6 +29,9 @@ async function storeReading(reading: Reading) {
   } else if (reptProblem) {
     message = generateSms(t2, h2, "reptilian");
   }
+
+  // TODO: Add phone number as an environment variable
+  // TODO:Do some error handling
   let res = await sendSms("07xxxxxxxx", message);
   if (res.error) {
     console.log("error");
