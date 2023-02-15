@@ -19,8 +19,8 @@ async function storeReading(reading: Reading) {
   const { humidity: h2, temperature: t2 } = reading.reading.sensorTwo;
 
   let message = "";
-  const avianProblem = t1 > 25 || t1 < 24 || h1 > 40 || h1 < 36;
-  const reptProblem = t2 > 26 || t2 < 25 || h2 > 45 || h2 < 40;
+  const avianProblem = t1 > 30 || t1 < 23 || h1 > 55 || h1 < 30;
+  const reptProblem = t2 > 28 || t2 < 22 || h2 > 70 || h2 < 30;
 
   if (!avianProblem && !reptProblem) return;
 
