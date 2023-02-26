@@ -40,63 +40,48 @@ async function storeReading(reading: Reading) {
 
 // Get readings of the last 24 hours and find the average of each hour
 async function getReadings(req: Request, res: Response) {
-  const temperatureReadings = await readingModel
-    .aggregate([
-      {
-        $match: {
-          timestamp: {
-            $gte: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%Y-%m-%d %H:00:00",
-              timezone: "+03:00",
-              date: "$timestamp",
+  try {
+    const dayReadings = await readingModel
+      .aggregate([
+        {
+          $match: {
+            timestamp: {
+              $gte: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
             },
           },
-          sensorOne: {
-            $avg: "$reading.sensorOne.temperature",
-          },
-          sensorTwo: {
-            $avg: "$reading.sensorTwo.temperature",
-          },
         },
-      },
-    ])
-    .sort({ _id: 1 });
-  const humidityReadings = await readingModel
-    .aggregate([
-      {
-        $match: {
-          timestamp: {
-            $gte: new Date(new Date().getTime() - 24 * 60 * 60 * 1000),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%Y-%m-%d %H:00:00",
-              timezone: "+03:00",
-              date: "$timestamp",
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%Y-%m-%d %H:00:00",
+                timezone: "+03:00",
+                date: "$timestamp",
+              },
+            },
+            avianTemp: {
+              $avg: "$reading.sensorOne.temperature",
+            },
+            avianHum: {
+              $avg: "$reading.sensorOne.humidity",
+            },
+            reptTemp: {
+              $avg: "$reading.sensorTwo.temperature",
+            },
+            reptHum: {
+              $avg: "$reading.sensorTwo.humidity",
             },
           },
-          sensorOne: {
-            $avg: "$reading.sensorOne.humidity",
-          },
-          sensorTwo: {
-            $avg: "$reading.sensorTwo.humidity",
-          },
         },
-      },
-    ])
-    .sort({ _id: 1 });
-  return res.json({ temperatureReadings, humidityReadings });
+      ])
+      .sort({ _id: 1 });
+    return res.json({ readings: dayReadings });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      return res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 export { storeReading, getReadings };
