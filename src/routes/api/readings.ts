@@ -1,9 +1,11 @@
 import { Router } from "express";
 import verifyJwt from "../../middleware/verifyJwt";
-import { getReadings } from "../../controllers/readingsController";
+import { getDayReadings } from "../../controllers/readingsController";
 
 const router = Router();
 
-router.route("/").get(verifyJwt, getReadings);
+router.use(verifyJwt);
+
+router.route("/").get(verifyJwt, getDayReadings);
 
 export default router;

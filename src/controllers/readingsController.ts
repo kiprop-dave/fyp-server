@@ -39,7 +39,7 @@ async function storeReading(reading: Reading) {
 }
 
 // Get readings of the last 24 hours and find the average of each hour
-async function getReadings(req: Request, res: Response) {
+async function getDayReadings(req: Request, res: Response) {
   try {
     const dayReadings = await readingModel
       .aggregate([
@@ -84,4 +84,4 @@ async function getReadings(req: Request, res: Response) {
   }
 }
 
-export { storeReading, getReadings };
+export { storeReading, getDayReadings };
