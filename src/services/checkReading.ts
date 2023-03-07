@@ -21,7 +21,7 @@ function checkReading(reading: Reading): ReadingStatus {
   const { temperature: reptileTemp, humidity: reptileHumidity } = sensorTwo;
 
   let avianTempStatus = getRange(
-    { idealMin: 23, idealMax: 30, warningMin: 22, warningMax: 35 },
+    { idealMin: 23, idealMax: 30, warningMin: 21, warningMax: 35 },
     avianTemp
   );
   let avianHumidityStatus = getRange(
@@ -80,9 +80,9 @@ function generateSms(
 ): string {
   switch (status) {
     case "warning":
-      return `The ${prob} in the ${unit} is in the warning range. The ${prob} is ${read}`;
+      return `The ${prob} in the ${unit} unit is in the warning range. The ${prob} is ${read}`;
     case "critical":
-      return `The ${prob} in the ${unit} is in the critical range. The ${prob} is ${read}`;
+      return `The ${prob} in the ${unit} unit is in the critical range. The ${prob} is ${read}`;
   }
 }
 

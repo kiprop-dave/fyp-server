@@ -33,44 +33,70 @@ class SmsTracker {
     if (this.canSend()) {
       this.lastSent = now;
       this.timesSent += 1;
-      console.log(`message sent ${this.timesSent} times`);
+      console.log(`warning message sent ${this.timesSent} times`);
       return true;
     } else if (now - this.lastSent > 20 * 60 * 1000) {
       this.reset();
-    } else if (now - this.lastSent < 20 * 60 * 1000 && this.timesSent >= 3) {
+    } else if (now - this.lastSent < 20 * 60 * 1000 && this.timesSent >= 3 && !this.isSirenOn) {
       sirenEvent.emit("alert");
       this.isSirenOn = true;
     }
     return false;
   }
 
-  reset() {
+  peekSiren(): boolean {
+    return this.isSirenOn;
+  }
+
+  reset(critical: boolean = false) {
     this.lastSent = new Date().getTime();
     this.timesSent = 0;
+    if (critical) {
+      sirenEvent.emit("alert");
+      this.isSirenOn = true;
+      return;
+    }
     this.isSirenOn = false;
   }
 }
 
 const alerts = new SmsTracker();
 
-type smsResponse = {
+type MessageType = "warning" | "critical";
+
+type SmsResponse = {
   error: boolean;
   sent: "YES" | "NO";
 };
 
-async function sendSms(to: string, message: string): Promise<smsResponse> {
+async function sendSms(to: string, message: string, type: MessageType): Promise<SmsResponse> {
   if (!accountSid || !authToken || !phoneNumber) {
     return { error: true, sent: "NO" };
   }
   const client = twilio(accountSid, authToken);
   try {
-    let canSend = alerts.send();
-    if (canSend) {
-      // await client.messages.create({
+    if (type === "critical") {
+      // let res = await client.messages.create({
       //   body: message,
       //   to: to,
       //   from: phoneNumber,
       // });
+      let sirenOn = alerts.peekSiren();
+      if (!sirenOn) {
+        alerts.reset(true);
+        console.log(`${type} message sent to ${to}`);
+        return { error: false, sent: "YES" };
+      } else {
+        return { error: false, sent: "NO" };
+      }
+    }
+    let canSend = alerts.send();
+    if (canSend) {
+      // let {} =   await client.messages.create({
+      //     body: message,
+      //     to: to,
+      //     from: phoneNumber,
+      //   });
       console.log(`${message} has been sent to ${to}`);
       return { error: false, sent: "YES" };
     }

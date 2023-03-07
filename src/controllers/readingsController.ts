@@ -3,38 +3,29 @@ import { Request, Response } from "express";
 import readingModel from "../models/Reading";
 import { Reading } from "../types/types";
 import { sendSms } from "../services/sendSms";
-
-type Unit = "avian" | "reptilian";
-// Generate Message
-const generateSms = (temp: number, hum: number, unit: Unit): string => {
-  let msg = `There is a problem in the ${unit} unit. Temperature is ${temp}. Humidity is ${hum}%`;
-  return msg;
-};
+import checkReading from "../services/checkReading";
 
 // Store a reading from MQTT in the database
 async function storeReading(reading: Reading) {
   const newReading = new readingModel(reading);
   await newReading.save();
-  const { humidity: h1, temperature: t1 } = reading.reading.sensorOne;
-  const { humidity: h2, temperature: t2 } = reading.reading.sensorTwo;
 
-  let message = "";
-  const avianProblem = t1 > 30 || t1 < 23 || h1 > 55 || h1 < 30;
-  const reptProblem = t2 > 28 || t2 < 22 || h2 > 70 || h2 < 30;
+  const readingStatus = checkReading(reading);
 
-  if (!avianProblem && !reptProblem) return;
+  if (readingStatus.state === "ideal") return;
 
-  if (avianProblem) {
-    message = generateSms(t1, h1, "avian");
-  } else if (reptProblem) {
-    message = generateSms(t2, h2, "reptilian");
-  }
-
-  // TODO: Add phone number as an environment variable
-  // TODO:Do some error handling
-  let res = await sendSms("07xxxxxxxx", message);
-  if (res.error) {
-    console.log("error");
+  if (readingStatus.message) {
+    if (readingStatus.state === "critical") {
+      let res = await sendSms("07********", readingStatus.message, "critical");
+      if (res.error) {
+        console.log("Error sending sms");
+      }
+    } else {
+      let res = await sendSms("07********", readingStatus.message, "warning");
+      if (res.error) {
+        console.log("Error sending sms");
+      }
+    }
   }
 }
 
