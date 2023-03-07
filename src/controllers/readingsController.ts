@@ -84,4 +84,52 @@ async function getDayReadings(req: Request, res: Response) {
   }
 }
 
-export { storeReading, getDayReadings };
+/*
+ *Function to find the past week's readings and find the average of each day
+ */
+async function getWeekReadings(req: Request, res: Response) {
+  try {
+    const weekReadings = await readingModel
+      .aggregate([
+        {
+          $match: {
+            timestamp: {
+              $gte: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                timezone: "+03:00",
+                date: "$timestamp",
+              },
+            },
+            avianTemp: {
+              $avg: "$reading.sensorOne.temperature",
+            },
+            avianHum: {
+              $avg: "$reading.sensorOne.humidity",
+            },
+            reptTemp: {
+              $avg: "$reading.sensorTwo.temperature",
+            },
+            reptHum: {
+              $avg: "$reading.sensorTwo.humidity",
+            },
+          },
+        },
+      ])
+      .sort({ _id: 1 });
+    return res.json({ readings: weekReadings });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      return res.status(500).json({ error: error.message });
+    }
+  }
+}
+
+export { storeReading, getDayReadings, getWeekReadings };
