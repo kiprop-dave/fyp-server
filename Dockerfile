@@ -1,25 +1,31 @@
-FROM node:19-alpine
+FROM node:19-alpine AS build
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# get package.json and package-lock.json
-COPY package*.json ./
-
-# Install production dependencies
-RUN npm install --omit=dev
-
-# Install typescript
-RUN npm install typescript
-
-# Copy source code
+# Bundle app source
 COPY . .
 
-# Build app
-RUN npm run build
+# Install app dependencies and build
+RUN npm install && npm run build
 
-# Expose port 5000
+# Production image
+FROM node:19-alpine AS production
+
+# Create app directory
+WORKDIR /app
+
+# Copy build files
+COPY --from=build /app/dist ./dist
+
+# Copy package.json and package-lock.json
+COPY package*.json .
+
+# Install production dependencies
+RUN npm install --only=production
+
+# Expose port
 EXPOSE 5000
 
-# Run app
+# Start app
 CMD [ "npm", "start" ]
