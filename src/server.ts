@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+import env from "./env";
 import express from "express";
 import cors from "cors";
 import corsOptions from "./config/corsOptions";
@@ -13,7 +14,7 @@ import { reset } from "./services/sendSms";
 // import logRequest from "./middleware/requestLog";
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = env.PORT;
 
 connectToMongo();
 

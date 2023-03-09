@@ -1,14 +1,12 @@
 import mongoose from "mongoose";
+import env from "../env";
 
 // Set up MongoDB connection
-const mongoUrl = process.env.MONGO_URL;
+const mongoUrl = env.MONGO_URL;
 
 async function connectToMongo() {
   try {
     console.log("Connecting to MongoDB...");
-    if (!mongoUrl) {
-      throw new Error("No MongoDB URL provided");
-    }
     mongoose.set("strictQuery", true);
     mongoose.connect(mongoUrl);
     console.log("Connected to MongoDB");

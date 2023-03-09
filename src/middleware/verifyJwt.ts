@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
-// TODO: Implement this middleware
+import env from "../env";
 
 const verifyJwt = (req: Request, res: Response, next: NextFunction) => {
   const bearerToken = req.headers.authorization;
@@ -12,11 +12,7 @@ const verifyJwt = (req: Request, res: Response, next: NextFunction) => {
     }
 
     let token = bearerToken.split(" ")[1];
-    const secret = process.env.ACCESS_SECRET;
-
-    if (!secret) {
-      return res.status(500).json({ message: "No secret provided" });
-    }
+    const secret = env.ACCESS_SECRET;
 
     jwt.verify(token, secret, (err, decoded) => {
       if (err) {

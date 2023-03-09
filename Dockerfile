@@ -3,20 +3,17 @@ FROM node:19-alpine
 # Create app directory
 WORKDIR /usr/src/app
 
-# get package.json
-COPY package.json ./
-
-# Copy tsconfig.json
-COPY tsconfig.json ./
+# get package.json and package-lock.json
+COPY package*.json ./
 
 # Install production dependencies
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 # Install typescript
 RUN npm install typescript
 
-# Bundle src directory
-COPY src ./
+# Copy source code
+COPY . .
 
 # Build app
 RUN npm run build

@@ -1,1 +1,1 @@
-This is the server for my IoT project
+This is the server for my final year project

@@ -1,12 +1,13 @@
 import mqtt from "mqtt";
 import generateClientId from "../utils/generateId";
+import env from "../env";
 
 // Set up MQTT client
-const tcpUrl = process.env.MQTT_URL || "mqtt://localhost:1883";
+const tcpUrl = env.MQTT_URL;
 const connectionOptions: mqtt.IClientOptions = {
   clientId: generateClientId("Node"),
-  username: process.env.MQTT_USERNAME,
-  password: process.env.MQTT_PASSWORD,
+  username: env.MQTT_USERNAME,
+  password: env.MQTT_PASSWORD,
   clean: true,
   connectTimeout: 4000,
   keepalive: 60,

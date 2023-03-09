@@ -1,9 +1,10 @@
 // Send sms using Twilio
 import twilio from "twilio";
 import sirenEvent from "./sirenAlert";
-const accountSid = process.env.TWILIO_SID;
-const authToken = process.env.TWILIO_TOKEN;
-const phoneNumber = process.env.TWILIO_NUMBER;
+import env from "../env";
+const accountSid = env.TWILIO_SID;
+const authToken = env.TWILIO_TOKEN;
+const phoneNumber = env.TWILIO_NUMBER;
 
 class SmsTracker {
   private lastSent: number;
@@ -70,9 +71,6 @@ type SmsResponse = {
 };
 
 async function sendSms(to: string, message: string, type: MessageType): Promise<SmsResponse> {
-  if (!accountSid || !authToken || !phoneNumber) {
-    return { error: true, sent: "NO" };
-  }
   const client = twilio(accountSid, authToken);
   try {
     if (type === "critical") {
