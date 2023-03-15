@@ -11,6 +11,7 @@ const envSchema = z.object({
   TWILIO_TOKEN: z.string(),
   TWILIO_NUMBER: z.string(),
   BROKER_URL: z.string(),
+  PHONE_NUMBER: z.string(),
 });
 
 const env = envSchema.parse(process.env);
