@@ -4,8 +4,13 @@ import readingModel from "../models/Reading";
 import { Reading } from "../types/types";
 import { sendSms } from "../services/sendSms";
 import checkReading from "../services/checkReading";
+import env from "../env";
 
-// Store a reading from MQTT in the database
+/*Store a reading from MQTT in the database
+ *The checkReading function is used to check the status of the readings
+ *It returns a generated message if the readings are not ideal
+ *The sendSms function is used to send the generated message to the attendant
+ */
 async function storeReading(reading: Reading) {
   const newReading = new readingModel(reading);
   await newReading.save();
@@ -16,12 +21,12 @@ async function storeReading(reading: Reading) {
 
   if (readingStatus.message) {
     if (readingStatus.state === "critical") {
-      let res = await sendSms("07********", readingStatus.message, "critical");
+      let res = await sendSms(env.PHONE_NUMBER, readingStatus.message, "critical");
       if (res.error) {
         console.log("Error sending sms");
       }
     } else {
-      let res = await sendSms("07********", readingStatus.message, "warning");
+      let res = await sendSms(env.PHONE_NUMBER, readingStatus.message, "warning");
       if (res.error) {
         console.log("Error sending sms");
       }

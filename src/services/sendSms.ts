@@ -1,6 +1,7 @@
 // Send sms using Twilio
 import twilio from "twilio";
 import sirenEvent from "./sirenAlert";
+import { BadReadingStatus, SmsResponse } from "../types/types";
 import env from "../env";
 const accountSid = env.TWILIO_SID;
 const authToken = env.TWILIO_TOKEN;
@@ -22,7 +23,8 @@ class SmsTracker {
     let allowed =
       now - this.lastSent > 5 * 60 * 1000 &&
       now - this.lastSent < 20 * 60 * 1000 &&
-      this.timesSent < 3;
+      this.timesSent < 3 &&
+      !this.isSirenOn;
     if (allowed) {
       return true;
     }
@@ -53,7 +55,6 @@ class SmsTracker {
     this.lastSent = new Date().getTime();
     this.timesSent = 0;
     if (critical) {
-      sirenEvent.emit("alert");
       this.isSirenOn = true;
       return;
     }
@@ -63,14 +64,7 @@ class SmsTracker {
 
 const alerts = new SmsTracker();
 
-type MessageType = "warning" | "critical";
-
-type SmsResponse = {
-  error: boolean;
-  sent: "YES" | "NO";
-};
-
-async function sendSms(to: string, message: string, type: MessageType): Promise<SmsResponse> {
+async function sendSms(to: string, message: string, type: BadReadingStatus): Promise<SmsResponse> {
   const client = twilio(accountSid, authToken);
   try {
     if (type === "critical") {
@@ -105,8 +99,8 @@ async function sendSms(to: string, message: string, type: MessageType): Promise<
   }
 }
 
-function reset() {
-  alerts.reset();
+function reset(critical: boolean = false) {
+  alerts.reset(critical);
 }
 
 export { sendSms, reset };

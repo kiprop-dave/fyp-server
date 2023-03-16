@@ -1,19 +1,18 @@
-import { Reading } from "../types/types";
+import {
+  Reading,
+  ReadingStatus,
+  Status,
+  Unit,
+  Problem,
+  BadReadingStatus,
+  Range,
+} from "../types/types";
 
 /*
  * Check if the reading is within the expected range
  *The readings can be ideal, warning or critical
  *If the reading is not ideal, generate an SMS message
  */
-
-type ReadingStatus = {
-  state: Status;
-  message: string | null;
-};
-
-type Status = "ideal" | "warning" | "critical";
-type Unit = "AVIAN" | "REPTILE";
-type Problem = "temperature" | "humidity";
 
 function checkReading(reading: Reading): ReadingStatus {
   const { sensorOne, sensorTwo } = reading.reading;
@@ -52,13 +51,6 @@ function checkReading(reading: Reading): ReadingStatus {
   return { state: "ideal", message: null };
 }
 
-type Range = {
-  idealMin: number;
-  idealMax: number;
-  warningMin: number;
-  warningMax: number;
-};
-
 function getRange(range: Range, value: number): Status {
   const { idealMin, idealMax, warningMin, warningMax } = range;
   if (value >= idealMin && value <= idealMax) {
@@ -72,17 +64,12 @@ function getRange(range: Range, value: number): Status {
   }
 }
 
-function generateSms(
-  status: Exclude<Status, "ideal">,
-  unit: Unit,
-  prob: Problem,
-  read: number
-): string {
+function generateSms(status: BadReadingStatus, unit: Unit, prob: Problem, read: number): string {
   switch (status) {
     case "warning":
-      return `The ${prob} in the ${unit} unit is in the warning range. The ${prob} is ${read}`;
+      return `The ${prob} in the ${unit.toLowerCase()} unit is in the warning range. The ${prob} is ${read}`;
     case "critical":
-      return `The ${prob} in the ${unit} unit is in the critical range. The ${prob} is ${read}`;
+      return `The ${prob} in the ${unit.toLowerCase()} unit is in the critical range. The ${prob} is ${read}`;
   }
 }
 
