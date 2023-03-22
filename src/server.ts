@@ -49,7 +49,7 @@ app.all("*", (req, res) => {
 client.on("connect", () => {
   console.log("Connected to MQTT broker");
 
-  client.subscribe(["readings", "/siren/off", "/siren/mcu/on"], (err) => {
+  client.subscribe(["readings", "/siren/off"], (err) => {
     console.log(err || "Subscribed to topics");
   });
 });
@@ -65,15 +65,11 @@ client.on("message", (topic, message) => {
     let reading = ReadingSchema.parse(data);
     storeReading(reading);
   } else if (topic === "/siren/off") {
-    /* This is the topic that the MCU publishes to when it turns off the siren
+    /* This is the topic that the MCU publishes to when it turns off the siren and
+     * when it is powered
      * This is used to reset the SMS tracker
      */
     reset();
-  } else if (topic === "/siren/mcu/on") {
-    /*
-     *The MCU will turn on the siren when it detects a critical reading and it will publish to this topic
-     */
-    reset(true);
   }
 });
 

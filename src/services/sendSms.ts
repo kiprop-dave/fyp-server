@@ -7,6 +7,18 @@ const accountSid = env.TWILIO_SID;
 const authToken = env.TWILIO_TOKEN;
 const phoneNumber = env.TWILIO_NUMBER;
 
+/*
+ *This is a class that keeps track of the number of warning messages sent within a specified time frame.
+ *It also keeps track of the last time a warning message was sent.
+ *It also holds the state of the siren.
+ *A message can only be sent if the last message was sent more than 5 minutes ago, less than 20 minutes ago,
+ *the number of messages sent is less than 3 and the siren is off.
+ *If the last message was sent more than 20 minutes ago, the tracker is reset.
+ *An MQTT message is sent to the MCU to turn on the siren if 3 warning messages have been sent and the siren is off.
+ *The reset method is called when the MCU turns off the siren,when a critical reading is detected or
+ *when the last message was sent more than 20 minutes ago.
+ *Whenever the MCU is powered,the reset method is called with the critical parameter set to false.
+ */
 class SmsTracker {
   private lastSent: number;
   private timesSent: number;
@@ -17,7 +29,7 @@ class SmsTracker {
     this.isSirenOn = false;
   }
 
-  // Allow sending sms every 5 minutes
+  // This method checks if a message can be sent
   private canSend(): boolean {
     let now = new Date().getTime();
     let allowed =
@@ -64,6 +76,15 @@ class SmsTracker {
 
 const alerts = new SmsTracker();
 
+/*
+ *This function sends an sms using Twilio.
+ *It returns a promise that resolves to an object with two properties.
+ *The two properties are error and sent. The error property is true if an error occured while sending the message.
+ *The sent property is YES if the message was sent and NO if it was not sent.
+ *There are two types of messages that can be sent, warning and critical.
+ *Critical messages are sent immediately
+ *Warning messages are sent depending on the state of the SmsTracker.
+ */
 async function sendSms(to: string, message: string, type: BadReadingStatus): Promise<SmsResponse> {
   const client = twilio(accountSid, authToken);
   try {
