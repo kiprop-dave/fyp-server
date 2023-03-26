@@ -13,7 +13,7 @@ const phoneNumber = env.TWILIO_NUMBER;
  *It also holds the state of the siren.
  *A message can only be sent if the last message was sent more than 5 minutes ago, less than 20 minutes ago,
  *the number of messages sent is less than 3 and the siren is off.
- *If the last message was sent more than 20 minutes ago, the tracker is reset.
+ *If the last message was sent more than 20 minutes ago and the siren is off,the reset method is called.
  *An MQTT message is sent to the MCU to turn on the siren if 3 warning messages have been sent and the siren is off.
  *The reset method is called when the MCU turns off the siren,when a critical reading is detected or
  *when the last message was sent more than 20 minutes ago.
@@ -50,7 +50,7 @@ class SmsTracker {
       this.timesSent += 1;
       console.log(`warning message sent ${this.timesSent} times`);
       return true;
-    } else if (now - this.lastSent > 20 * 60 * 1000) {
+    } else if (now - this.lastSent > 20 * 60 * 1000 && !this.isSirenOn) {
       this.reset();
     } else if (now - this.lastSent < 20 * 60 * 1000 && this.timesSent >= 3 && !this.isSirenOn) {
       sirenEvent.emit("alert");

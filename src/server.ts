@@ -69,6 +69,7 @@ client.on("message", (topic, message) => {
      * when it is powered
      * This is used to reset the SMS tracker
      */
+    // console.log("reset warning tracker")
     reset();
   }
 });

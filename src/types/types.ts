@@ -41,6 +41,13 @@ const range = z.object({
   warningMax: z.number(),
 });
 
+const enclosureStatus = z.object({
+  enclosure: unit,
+  condition: problem,
+  state: status,
+  value: z.number(),
+});
+
 const smsResponse = z.object({
   error: z.boolean(),
   sent: z.union([z.literal("YES"), z.literal("NO")]),
@@ -55,6 +62,7 @@ type ReadingStatus = z.infer<typeof readingStatus>;
 type BadReadingStatus = Exclude<Status, "ideal">;
 type Range = z.infer<typeof range>;
 type SmsResponse = z.infer<typeof smsResponse>;
+type EnclosureStatus = z.infer<typeof enclosureStatus>;
 
 export {
   Reading,
@@ -69,4 +77,5 @@ export {
   BadReadingStatus,
   Range,
   SmsResponse,
+  EnclosureStatus,
 };
