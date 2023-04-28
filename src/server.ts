@@ -7,7 +7,7 @@ import corsOptions from "./config/corsOptions";
 import client from "./config/mqttConfig";
 import connectToMongo from "./config/dbConfig";
 import { storeReading } from "./controllers/readingsController";
-import { ReadingSchema } from "./types/types";
+import { MqttReadingSchema, mqttMesageSchema } from "./types/types";
 import adminRoute from "./routes/login";
 import readingsRoute from "./routes/api/readings";
 import { reset } from "./services/sendSms";
@@ -54,16 +54,26 @@ client.on("connect", () => {
   });
 });
 
+const parseReading = (message: Buffer) => {
+  try {
+    // Parse the message to make it type safe
+    // console.log(message.toString());
+    const mqttMessage = mqttMesageSchema.parse(JSON.parse(message.toString()));
+    const data = {
+      timestamp: new Date(),
+      ...mqttMessage,
+    };
+    storeReading(data);
+  } catch (error) {
+    return;
+    // console.log(error);
+  }
+};
+
 client.on("message", (topic, message) => {
   if (topic === "readings") {
     // This is the topic that the MCU publishes the readings to
-    const data = {
-      timestamp: new Date(),
-      reading: JSON.parse(message.toString()),
-    };
-    // Parse the data to make it type safe
-    let reading = ReadingSchema.parse(data);
-    storeReading(reading);
+    parseReading(message);
   } else if (topic === "/siren/off") {
     /* This is the topic that the MCU publishes to when it turns off the siren and
      * when it is powered

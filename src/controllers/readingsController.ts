@@ -1,9 +1,10 @@
 // Controller to store and retrieve readings from the database
 import { Request, Response } from "express";
+import client from "../config/mqttConfig";
 import readingModel from "../models/Reading";
-import { Reading } from "../types/types";
+import { MqttReading } from "../types/types";
 import { sendSms } from "../services/sendSms";
-import checkReading from "../services/checkReading";
+import { generateSms } from "../services/generateSms";
 import env from "../env";
 
 /*Store a reading from MQTT in the database
@@ -11,25 +12,36 @@ import env from "../env";
  *It returns a generated message if the readings are not ideal
  *The sendSms function is used to send the generated message to the attendant
  */
-async function storeReading(reading: Reading) {
-  const newReading = new readingModel(reading);
+async function storeReading(reading: MqttReading) {
+  const newReading = new readingModel({
+    timestamp: reading.timestamp,
+    reading: {
+      avian: reading.avian,
+      reptilian: reading.reptilian,
+    },
+  });
   await newReading.save();
 
-  const readingStatus = checkReading(reading);
+  if (reading.status.decision === "ideal") return;
 
-  if (readingStatus.state === "ideal") return;
+  const unit = reading.status.enclosure[0];
+  const problem = reading.status.enclosure[1];
 
-  if (readingStatus.message) {
-    if (readingStatus.state === "critical") {
-      let res = await sendSms(env.PHONE_NUMBER, readingStatus.message, "critical");
-      if (res.error) {
-        console.log("Error sending sms");
-      }
-    } else {
-      let res = await sendSms(env.PHONE_NUMBER, readingStatus.message, "warning");
-      if (res.error) {
-        console.log("Error sending sms");
-      }
+  if (!unit.length || !problem.length) return;
+
+  const message = generateSms(reading, unit, problem);
+
+  client.publish("/message/alert", message);
+
+  if (reading.status.decision === "critical") {
+    let res = await sendSms(env.PHONE_NUMBER, message, "critical");
+    if (res.error) {
+      console.log("Error sending sms");
+    }
+  } else {
+    let res = await sendSms(env.PHONE_NUMBER, message, "warning");
+    if (res.error) {
+      console.log("Error sending sms");
     }
   }
 }
@@ -56,16 +68,16 @@ async function getDayReadings(req: Request, res: Response) {
               },
             },
             avianTemp: {
-              $avg: "$reading.sensorOne.temperature",
+              $avg: "$reading.avian.temperature",
             },
             avianHum: {
-              $avg: "$reading.sensorOne.humidity",
+              $avg: "$reading.avian.humidity",
             },
             reptTemp: {
-              $avg: "$reading.sensorTwo.temperature",
+              $avg: "$reading.reptilian.temperature",
             },
             reptHum: {
-              $avg: "$reading.sensorTwo.humidity",
+              $avg: "$reading.reptilian.humidity",
             },
           },
         },
@@ -104,16 +116,16 @@ async function getWeekReadings(req: Request, res: Response) {
               },
             },
             avianTemp: {
-              $avg: "$reading.sensorOne.temperature",
+              $avg: "$reading.avian.temperature",
             },
             avianHum: {
-              $avg: "$reading.sensorOne.humidity",
+              $avg: "$reading.avian.humidity",
             },
             reptTemp: {
-              $avg: "$reading.sensorTwo.temperature",
+              $avg: "$reading.reptilian.temperature",
             },
             reptHum: {
-              $avg: "$reading.sensorTwo.humidity",
+              $avg: "$reading.reptilian.humidity",
             },
           },
         },

@@ -1,7 +1,7 @@
 // Send sms using Twilio
 import twilio from "twilio";
 import sirenEvent from "./sirenAlert";
-import { BadReadingStatus, SmsResponse } from "../types/types";
+import { SmsResponse, Decision } from "../types/types";
 import env from "../env";
 const accountSid = env.TWILIO_SID;
 const authToken = env.TWILIO_TOKEN;
@@ -85,8 +85,9 @@ const alerts = new SmsTracker();
  *Critical messages are sent immediately
  *Warning messages are sent depending on the state of the SmsTracker.
  */
-async function sendSms(to: string, message: string, type: BadReadingStatus): Promise<SmsResponse> {
+async function sendSms(to: string, message: string, type: Decision): Promise<SmsResponse> {
   const client = twilio(accountSid, authToken);
+  console.log("message", message);
   try {
     if (type === "critical") {
       // let res = await client.messages.create({

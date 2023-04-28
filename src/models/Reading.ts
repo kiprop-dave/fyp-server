@@ -6,11 +6,11 @@ const ReadingSchema = new Schema<Reading>(
   {
     timestamp: { type: Date, required: true },
     reading: {
-      sensorOne: {
+      avian: {
         temperature: { type: Number, required: true },
         humidity: { type: Number, required: true },
       },
-      sensorTwo: {
+      reptilian: {
         temperature: { type: Number, required: true },
         humidity: { type: Number, required: true },
       },
