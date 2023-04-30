@@ -87,7 +87,6 @@ const alerts = new SmsTracker();
  */
 async function sendSms(to: string, message: string, type: Decision): Promise<SmsResponse> {
   const client = twilio(accountSid, authToken);
-  console.log("message", message);
   try {
     if (type === "critical") {
       // let res = await client.messages.create({

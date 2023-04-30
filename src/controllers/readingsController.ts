@@ -31,7 +31,7 @@ async function storeReading(reading: MqttReading) {
 
   const message = generateSms(reading, unit, problem);
 
-  client.publish("/message/alert", message);
+  client.publish("message/alert", message);
 
   if (reading.status.decision === "critical") {
     let res = await sendSms(env.PHONE_NUMBER, message, "critical");
