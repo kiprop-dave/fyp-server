@@ -61,7 +61,7 @@ async function authAdmin(req: Request, res: Response) {
 
     const isPasswordCorrect = compare(foundAdmin.password, admin.password);
     if (!isPasswordCorrect) {
-      return res.status(401).send({ message: "Incorrect password" });
+      return res.status(401).send({ message: "Incorrect email or password" });
     }
 
     const accessSecret = env.ACCESS_SECRET;
