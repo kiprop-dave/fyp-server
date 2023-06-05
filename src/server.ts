@@ -65,8 +65,8 @@ const parseReading = (message: Buffer) => {
     };
     storeReading(data);
   } catch (error) {
-    return;
     // console.log(error);
+    return;
   }
 };
 

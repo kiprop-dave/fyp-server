@@ -89,13 +89,13 @@ async function sendSms(to: string, message: string, type: Decision): Promise<Sms
   const client = twilio(accountSid, authToken);
   try {
     if (type === "critical") {
-      // let res = await client.messages.create({
-      //   body: message,
-      //   to: to,
-      //   from: phoneNumber,
-      // });
       let sirenOn = alerts.peekSiren();
       if (!sirenOn) {
+        let _ = await client.messages.create({
+          body: message,
+          to: to,
+          from: phoneNumber,
+        });
         alerts.reset(true);
         console.log(`${type} message sent to ${to}`);
         return { error: false, sent: "YES" };
@@ -105,11 +105,11 @@ async function sendSms(to: string, message: string, type: Decision): Promise<Sms
     }
     let canSend = alerts.send();
     if (canSend) {
-      // let {} =   await client.messages.create({
-      //     body: message,
-      //     to: to,
-      //     from: phoneNumber,
-      //   });
+      let _ = await client.messages.create({
+        body: message,
+        to: to,
+        from: phoneNumber,
+      });
       console.log(`${message} has been sent to ${to}`);
       return { error: false, sent: "YES" };
     }

@@ -14,6 +14,7 @@ const envSchema = z.object({
   PHONE_NUMBER: z.string(),
 });
 
+// This is used to validate the environment variables to make them type safe
 const env = envSchema.parse(process.env);
 
 export default env;

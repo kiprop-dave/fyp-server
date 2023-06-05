@@ -1,0 +1,10 @@
+{
+  "apps":[
+    {
+      "name":"hatchery_server",
+      "script":"npm",
+      "interpreter":"none",
+      "args":"start"
+    }
+  ]
+}
